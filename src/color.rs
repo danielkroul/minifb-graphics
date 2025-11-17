@@ -15,7 +15,6 @@ impl Color {
     pub const CYAN: Color = Color(0x00FFFF);
     pub const MAGENTA: Color = Color(0xFF00FF);
     pub const YELLOW: Color = Color(0xFFFF00);
-    pub const YELLOW2: u32 = 0xFFFF00;
 }
 
 impl From<Color> for u32 {

@@ -33,8 +33,6 @@ impl Buffer {
         self.pixels
             .iter_mut()
             .for_each(|i| *i = color);
-
-        self.set_pixel(50, 30, Color(0xFFDD00));
     }
 
     // A private helper for a fast horizontal line.
