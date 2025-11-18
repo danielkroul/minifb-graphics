@@ -1,4 +1,4 @@
-use crate::{Color, Sprite};
+use crate::Color;
 
 pub struct Buffer {
     pub width: usize,
@@ -11,7 +11,7 @@ impl Buffer {
         Buffer {
             width: width,
             height: height,
-            pixels: vec![0; width * height],
+            pixels: vec![Color::BLACK.into(); width * height],
         }
     }
 
@@ -23,7 +23,16 @@ impl Buffer {
     pub fn set_pixel(&mut self, x: i32, y: i32, color: Color) {
         if x < self.width as i32 && y < self.height as i32 {
             let index = self.coords_to_index(x, y);
-            self.pixels[index as usize] = color.into();
+            let alpha = color.alpha();
+
+            match alpha {
+                a if a >= 1.0 => self.pixels[index as usize] = color.into(),
+                a if a <= 0.0 => return,
+                _ => self.pixels[index as usize] = {
+                    let base_color = Color(self.pixels[index as usize]);
+                    Color::mix(base_color, color).into()
+                }
+            }
         }
     }
 
