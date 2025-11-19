@@ -15,23 +15,30 @@ impl Buffer {
         }
     }
 
-    fn coords_to_index(&self, x: i32, y: i32) -> i32 {
-        y * self.width as i32 + x
+    fn coords_to_index(&self, x: i32, y: i32) -> Option<usize> {
+        let w = self.width as isize;
+        let h = self.height as isize;
+        let ix = x as isize;
+        let iy = y as isize;
+
+        if ix < 0 || iy < 0 || ix >= w || iy >= h { 
+            return None 
+        }
+        Some(y as usize * self.width + x as usize)
     }
 
     /// Sets a single pixel
     pub fn set_pixel(&mut self, x: i32, y: i32, color: Color) {
-        if x < self.width as i32 && y < self.height as i32 {
-            let index = self.coords_to_index(x, y);
-            let alpha = color.alpha();
+        let Some(index) = self.coords_to_index(x, y) else { return };
 
-            match alpha {
-                a if a >= 1.0 => self.pixels[index as usize] = color.into(),
-                a if a <= 0.0 => return,
-                _ => self.pixels[index as usize] = {
-                    let base_color = Color(self.pixels[index as usize]);
-                    Color::mix(base_color, color).into()
-                }
+        let alpha = color.alpha();
+
+        match alpha {
+            a if a >= 1.0 => self.pixels[index] = color.into(),
+            a if a <= 0.0 => return,
+            _ => self.pixels[index] = {
+                let base_color = Color(self.pixels[index]);
+                Color::mix(base_color, color).into()
             }
         }
     }
@@ -111,10 +118,6 @@ impl Buffer {
         if width <= 0 || height <= 0 { return; }
         let x2 = x + width - 1;
         let y2 = y + height - 1;
-
-        for py in y..=y2 {
-            self.draw_hline(x, py, x2, color);
-        }
 
         (y..=y2).for_each(|py| self.draw_hline(x, py, x2, color));
     }

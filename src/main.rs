@@ -5,6 +5,13 @@ const WIDTH: usize = 800;
 const HEIGHT: usize = 600;
 
 fn main() {
+    let mut window = Window::new(
+        "minifb lines",
+        WIDTH,
+        HEIGHT,
+        WindowOptions::default(),
+    ).expect("Unable to create window.");
+
     let mut buffer = Buffer::new(WIDTH, HEIGHT);
     let mut sprite = Buffer::new(100, 100);
     let mut gradient = Buffer::new(250, 250);
@@ -23,15 +30,6 @@ fn main() {
             );
         }
     }
-
-    let mut window = Window::new(
-        "minifb lines",
-        WIDTH,
-        HEIGHT,
-        WindowOptions::default(),
-    ).expect("Unable to create window.");
-
-
 
     while window.is_open() {
         draw(&mut buffer, &sprite, &gradient);
