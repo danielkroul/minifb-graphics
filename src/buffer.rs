@@ -34,8 +34,8 @@ impl Buffer {
         let alpha = color.alpha();
 
         match alpha {
-            a if a >= 1.0 => self.pixels[index] = color.into(),
-            a if a <= 0.0 => return,
+            a if a >= 255 => self.pixels[index] = color.into(),
+            a if a <= 0 => return,
             _ => self.pixels[index] = {
                 let base_color = Color(self.pixels[index]);
                 Color::mix(base_color, color).into()

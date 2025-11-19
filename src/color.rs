@@ -5,12 +5,12 @@ pub struct Color(pub u32);
 
 impl Color {
     /// Returns a Color(u32) value in format 0xAARRGGBB
-    pub const fn rgba(r: u8, g: u8, b: u8, a: f32) -> Self {
-        let val = ((a.abs() * 255.0) as u32) << 24 | (r as u32) << 16 | (g as u32) << 8 | (b as u32);
+    pub const fn rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
+        let val = (a as u32) << 24 | (r as u32) << 16 | (g as u32) << 8 | (b as u32);
         Color(val)
     }
 
-    pub fn alpha(&self) -> f32 { (self.0 >> 24) as f32 / 255.0 }
+    pub fn alpha(&self) -> u8 { (self.0 >> 24) as u8 }
 
     pub fn red(&self) -> u8 { ((self.0 >> 16) & 0xFF) as u8 }
 
@@ -19,21 +19,29 @@ impl Color {
     pub fn blue(&self) -> u8 { (self.0 & 0xFF) as u8 }
 
     pub fn mix(bottom: Color, top: Color) -> Color {
-        let ba = bottom.alpha() as f32;
-        let br = bottom.red() as f32;
-        let bg = bottom.green() as f32;
-        let bb = bottom.blue() as f32;
+        let ta = top.alpha() as u32;
 
-        let ta = top.alpha() as f32;
-        let tr = top.red() as f32;
-        let tg = top.green() as f32;
-        let tb = top.blue() as f32;
+        if ta == 0 { return bottom }
+        if ta == 255 { return top }
 
-        let r = ta * tr + (1.0 - ta) * br;
-        let g = ta * tg + (1.0 - ta) * bg;
-        let b = ta * tb + (1.0 - ta) * bb;
+        let tr = top.red() as u32;
+        let tg = top.green() as u32;
+        let tb = top.blue() as u32;
 
-        Self::rgba(r as u8, g as u8, b as u8, ta + ba)
+        let ba = bottom.alpha() as u32;
+        let br = bottom.red() as u32;
+        let bg = bottom.green() as u32;
+        let bb = bottom.blue() as u32;
+
+        let inv_ta = 255 - ta;
+
+        let r = (tr * ta + br * inv_ta) >> 8;
+        let g = (tg * ta + bg * inv_ta) >> 8;
+        let b = (tb * ta + bb * inv_ta) >> 8;
+
+        let a = ta + ((ba * inv_ta) >> 8);
+
+        Self::rgba(r as u8, g as u8, b as u8, a as u8)
     }
 
     pub const BLACK: Color = Color(0xFF000000);
